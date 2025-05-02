@@ -9,7 +9,7 @@ public class Greeting_Event extends ListenerAdapter {
         String User_Name = event.getMember().getUser().getName();
 
         if (messageSent.equalsIgnoreCase("hello")){
-            event.getChannel().sendMessage("Hi " + User_Name + "!").queue();
+            event.getChannel().sendMessage("Hi " + "@" + User_Name).queue();
         }
     }
 }
