@@ -1,6 +1,5 @@
 package Events;
 import Command_Manager.Command_Manager;
-import Music_Package.lavaplayer.TrackScheduler;
 import io.github.cdimascio.dotenv.Dotenv;
 import net.dv8tion.jda.api.*;
 import net.dv8tion.jda.api.entities.Activity;
@@ -30,7 +29,7 @@ public class DiscordBot {
         .setMemberCachePolicy(MemberCachePolicy.ALL) //This will keep track of the user's info and when a user joins a server
         .addEventListeners(new Greeting_Event())
         .addEventListeners(new Channel_Create_Event())
-        .addEventListeners(new Command_Manager())
+        .addEventListeners(new Command_Manager())   
         .enableCache(CacheFlag.VOICE_STATE)
         .build();
 

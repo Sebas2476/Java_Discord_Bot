@@ -5,7 +5,6 @@ import com.sedmelluq.discord.lavaplayer.player.*;
 import com.sedmelluq.discord.lavaplayer.player.event.*;
 import com.sedmelluq.discord.lavaplayer.track.*;
 
-
 public class TrackScheduler extends AudioEventAdapter {
 
     public final AudioPlayer audioPlayer;
@@ -14,22 +13,27 @@ public class TrackScheduler extends AudioEventAdapter {
     public TrackScheduler(AudioPlayer audioPlayer){
         this.audioPlayer = audioPlayer;
         this.queue = new LinkedBlockingDeque<>();
-
         this.audioPlayer.addListener(this);
     }
 
     //CREATES QUEUE
     public void queue(AudioTrack track) {
         System.out.println("Attempting to queue track: " + track.getInfo().title);
-        if(!this.audioPlayer.startTrack(track, true)){
-            this.queue.offer(track);
-            System.out.println("Track added to queue. Queue size" + this.queue.size());
+
+
+        if(this.audioPlayer.getPlayingTrack() == null) {
+            System.out.println("No Track currently playing, starting track directly");
+            boolean success = this.audioPlayer.startTrack(track, false);
+            System.out.println("Track started result: " + success);
 
         }
+
         else {
-            System.out.println("Track started playing immediatetly");
-        }
+             System.out.println("Adding track to queue since player is already playing");
+        this.queue.offer(track);
+        System.out.println("Track added to queue. Queue size: " + this.queue.size());
     }
+}
 
 
     public void nextTrack() {
@@ -37,8 +41,17 @@ public class TrackScheduler extends AudioEventAdapter {
     }
 
     @Override
+    public void onTrackStart(AudioPlayer player, AudioTrack track){
+        System.out.println("Track Started: " + track.getInfo().title);
+        System.out.println("Volume: " + player.getVolume());
+        System.out.println("Player Paused: " + player.isPaused());
+    }
+
+    @Override
     public void onTrackEnd(AudioPlayer player, AudioTrack track, AudioTrackEndReason endReason) {
+        System.out.println("Track ended: " + track.getInfo().title + " with reason: " + endReason);
         if(endReason.mayStartNext){
+            System.out.println("Starting next track");
             nextTrack();
         }
     }

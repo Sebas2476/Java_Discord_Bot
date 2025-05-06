@@ -1,19 +1,13 @@
 package Music_Package.lavaplayer;
-import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
-import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
-import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
+import com.sedmelluq.discord.lavaplayer.player.*;
 import com.sedmelluq.discord.lavaplayer.source.AudioSourceManagers;
 import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioSourceManager;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
-import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
-import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
+import com.sedmelluq.discord.lavaplayer.track.*;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+
 
 public class PlayerManager {
 
@@ -27,11 +21,17 @@ public class PlayerManager {
         this.musicManagers = new HashMap<>();
         this.audioPlayerManager = new DefaultAudioPlayerManager();
 
+        //replace the genric registration with specific youtube setup
+        YoutubeAudioSourceManager youtubeSource = new YoutubeAudioSourceManager(true);
+        //key to make yt work
+        youtubeSource.setPlaylistPageCount(1);
+        this.audioPlayerManager.registerSourceManager(youtubeSource);
+
+        //tjem register other rmeote sources and local source 
         AudioSourceManagers.registerRemoteSources(this.audioPlayerManager);
         AudioSourceManagers.registerLocalSource(this.audioPlayerManager);
 
-        
-
+        this.audioPlayerManager.getConfiguration().setFilterHotSwapEnabled(true);
     }
 
     public GuildMusicManager getMusicManager(Guild guild){
@@ -49,27 +49,31 @@ public class PlayerManager {
 
             if(!channel.getGuild().getAudioManager().isConnected()) {
                 var member = channel.getGuild().getMemberById(channel.getJDA().getSelfUser().getId());
-                if(member != null) {
+                if(member != null && member.getVoiceState() != null) {
                     var voiceState = member.getVoiceState();
+
+
                     if (voiceState != null && voiceState.getChannel() != null) {
                         channel.getGuild().getAudioManager().openAudioConnection(voiceState.getChannel());
-                        System.out.println("connecting to voice channel!");
+                        System.out.println("connecting to voice channel!" + voiceState.getChannel().getName());
                     }               
                  }
             }
 
-            this.audioPlayerManager.loadItemOrdered(musicManager, trackURL, new AudioLoadResultHandler() {
-                
+            this.audioPlayerManager.loadItemOrdered(musicManager, trackURL, new AudioLoadResultHandler() { 
             @Override
             public void trackLoaded(AudioTrack track) {
                 System.out.println("Track loaded: " + track.getInfo().title);
                 channel.sendMessage("Adding to queue **" + track.getInfo().title + "** by **" + track.getInfo().author + "**").queue();
+
+                System.out.println("Queue size before: " + musicManager.scheduler.getQueueSize());
                 musicManager.scheduler.queue(track);
+                System.out.println("Queue size after: " + musicManager.scheduler.getQueueSize());
 
                 System.out.println("current playing track: " + musicManager.audioPlayer.getPlayingTrack());
-                System.out.println("current player volume: " + musicManager.audioPlayer.getVolume());
                 System.out.println("Is audio manger connected: " + channel.getGuild().getAudioManager().isConnected());
             }
+            
 
             @Override
             public void playlistLoaded(AudioPlaylist playlist) {
@@ -111,4 +115,5 @@ public class PlayerManager {
         }
         
 }
+
 
