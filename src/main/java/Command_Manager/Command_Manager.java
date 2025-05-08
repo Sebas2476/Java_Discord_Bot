@@ -4,7 +4,6 @@ import net.dv8tion.jda.api.events.guild.*;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.commands.*;
-import net.dv8tion.jda.api.interactions.commands.Command.Choice;
 import net.dv8tion.jda.api.interactions.commands.build.*;
 import net.dv8tion.jda.api.managers.AudioManager;
 import java.util.*;
@@ -30,12 +29,12 @@ public class Command_Manager extends ListenerAdapter{
             return;
         }
 
-        //Create a Welcome command that greets the user
+        //Create a Welcome command that greets the user **************************************************************************************
         if(command.equals("welcome")) { //if user types welcome 
             event.reply("Hello! **" + userTag + "** Nice to meet you :] ").setEphemeral(true).queue(); //the bot will respond back.
-        }
+        }  //Create a Welcome command that greets the user ENDS **************************************************
 
-            //JOIN FEATURE FUNCTIONALITY 
+            //JOIN FEATURE FUNCTIONALITY **************************************************
             if (command.equals("join")) { //join command
                 event.deferReply().queue();
             if (member == null || member.getVoiceState() == null || !member.getVoiceState().inAudioChannel()) { //if no members exist OR the member in voice channel is null OR if no member is in the voice channel display the first event msg
@@ -50,29 +49,30 @@ public class Command_Manager extends ListenerAdapter{
             audioManager.openAudioConnection(memberVoiceState.getChannel()); //connects to voice channel 
             event.getHook().sendMessage("Joined voice Channel: " + memberVoiceState.getChannel().getName()).queue();
             }
-        }
+        }  //JOIN FEATURE FUNCTIONALITY ENDS **************************************************
 
 
-            //LEAVE FEATURE FUNCTIONAILTY
+            //LEAVE FEATURE FUNCTIONAILTY **************************************
             if (command.equals("leave")){ //leave command
                 event.deferReply().queue();
             if (audioManager.isConnected()) { //if bot is connected to voice channel
             audioManager.closeAudioConnection(); //bot leaves voice channel 
             event.getHook().sendMessage("Leaving Voice Channel:" + memberVoiceState.getChannel().getName()).queue();
             }
-        }
+        }   //LEAVE FEATURE FUNCTIONAILTY End **************************************
         
         
-        //HELP FUNCTIONAILTY
+        //HELP FUNCTIONAILTY **********************************************************
         if (command.equals("help")){ //help command (provides instructions on what each command does)
             event.reply("**/Welcome**:  Greets the user\n" +
                         "**/Roles**:  Provides a list of the roles here on the server\n." + //work on this line
                         "**clearC**: Clears chat history and however amount of text you want to remove\n" + //work on this line
                         "**/Join**:  Makes the bot join the VC (voiceChannel) you are currently in (must be in the voice channel first in order for the bot to join)\n" +
                         "**/Leave**:  Makes the bot leave the VC (voiceChannel)\n").setEphemeral(true).queue();
-        }
+        } //HELP FUNCTIONAILTY ENDS **********************************************************
 
-        //ROLES FUNCTIONAILTY 
+
+        //ROLES FUNCTION BODY *******************************************************************
         if (command.equals("roles")) {
             event.deferReply().setEphemeral(true).queue();
             String response = "";
@@ -81,9 +81,10 @@ public class Command_Manager extends ListenerAdapter{
                 response += role.getAsMention() + "\n";  //displays each role. 
             }
             event.getHook().sendMessage(response).queue();
-        }
+        } 
+        //ROLES FUNCTION BODY *******************************************************************
 
-        //CLEAR CHAT FUNCTIONAILTY OR PURGE
+        //CLEAR CHAT FUNCTIONAILTY OR PURGE ******************************************************
         if (command.equals("purge")) { //clears
             OptionMapping amountOption = event.getOption("amount");
             if (amountOption == null) {
@@ -91,7 +92,6 @@ public class Command_Manager extends ListenerAdapter{
                 return; 
             }
             int amount = amountOption.getAsInt();
-
             //ok so now check the amount within the discrod's limit 
             if(amount < 1 || amount > 100) {
                 event.reply("can only delete in range from 1-100 msgs at once").setEphemeral(true).queue();
@@ -110,10 +110,10 @@ public class Command_Manager extends ListenerAdapter{
         event.getChannel().purgeMessages(messages);
         event.getHook().sendMessage("messages deleted" + messages.size() + "messages").setEphemeral(true).queue();
         
-    });
+    }); //CLEAR CHAT FUNCTIONAILTY OR PURGE ENDS HERE ***************************************************************************
 }
 
-        //play Functionailty 
+        //play Functionailty ***********************************************************
         if (command.equals("play")) {
             OptionMapping queryOption = event.getOption("query");
             if (queryOption == null) {
@@ -150,10 +150,10 @@ public class Command_Manager extends ListenerAdapter{
             e.printStackTrace();
             event.getHook().sendMessage("An error occurred while connecting to voice.").queue();
         }
-    }
+    } //play Functionailty ENDSSSSSSSSSSS ******************************************************************************************
 
 
-        // SKIP COMMAND
+        // SKIP COMMAND ***********************************************************************************
     else if (command.equals("skip") || command.equals("s")) {
     if (member == null || member.getVoiceState() == null || member.getVoiceState().getChannel() == null) {
         event.reply("You need to be in a voice channel to skip tracks!").queue();
@@ -163,75 +163,52 @@ public class Command_Manager extends ListenerAdapter{
     GuildMusicManager musicManager = PlayerManager.getInstance().getMusicManager(guild);
     musicManager.scheduler.nextTrack();
     event.reply("Skipped to the next track").queue();
-}
+} // SKIP COMMAND ENDS ***********************************************************************************
 
 
-      //Rolling Dice Function
+      //Rolling Dice Function *******************************************************
+     
+     
       if(command.equals("roll")) {
         OptionMapping diceOption = event.getOption("dice");
 
-        if (diceOption == null) {
-            event.reply("Please choose what dice you would like to roll (EX: 1d6 2d20 3d10)").setEphemeral(true).queue();
+        if (diceOption == null){
+            event.reply("Please choose a dice of your choice :] ").setEphemeral(true).queue();
+        }
+        String diceInput = diceOption.getAsString().toLowerCase();
+        
+        //if user add any of the dice options, adds a 1 as prefix
+        if(diceInput.contains("d")) {
+            
         }
 
-        String diceFormat = diceOption.getAsString().toLowerCase();
-
-        if(diceFormat.matches("d")) {
-           diceFormat = "1" + diceFormat;
+        //check if format matches the pattern "1d6", 1d20, ect.
+        if(!diceInput.contains("d")){
+            
         }
 
-        String[] parts = diceFormat.split("d");
-        int numOfDice = Integer.parseInt(parts[1]);
+        //Parse the dices
+        String[] parts = diceInput.split("d");
         int sides = Integer.parseInt(parts[1]);
+        int diceAmount = Integer.parseInt(parts[0]);
 
-        //check for reasonable limits
-        if(numOfDice < 1 || numOfDice > 20) {
-            event.reply("Please choose between 1 and 20 dices").setEphemeral(true).queue();
-            return;
-        }
-        if(sides < 1 || sides > 20) {
-            event.reply("Please choose between 1 and 20 sides").setEphemeral(true).queue();
-            return;
+        if(sides < 1 || sides > 20){
+            event.reply("please pick a dice from d1-d20").setEphemeral(true).queue();
         }
 
-        //Lets attempt to code in the rolling action 
+        int roll = (int)(Math.random() * sides) + 1;
+
+        //build the result image
         StringBuilder resultBuilder = new StringBuilder();
-        int total = 0;
-        int[] rolls = new int[numOfDice];
-
-        for (int i = 0; i < numOfDice; i++) {
-            rolls[i] = (int) (Math.random() * sides) + 1;
-            total += rolls[i];
-        }
-        //lets create the results 
-        resultBuilder.append( "**Result: ** ").append(diceFormat).append("\n") ;
-            if(numOfDice > 1) {
-             for (int i = 0; i < numOfDice; i++) {
-                resultBuilder.append(rolls[i]);
-                if(i < numOfDice - 1){
-                resultBuilder.append(",");
-                }
-            }
-            resultBuilder.append("\n");
-
-
-          
-            resultBuilder.append("**Overall Total: ").append(rolls[0]).append("**");
-            if(sides == 20) {
-                resultBuilder.append("\n YOU GOT A CRIT 20!!! (critical hit)");
-            }
-            if(sides == 1) {
-                resultBuilder.append("\n OH NAH YOU GOT A 1!!! (critical fail)");
-            }
-           
-
-
-        }
+        resultBuilder.append("**Results ** " + diceInput + "\n");
+        resultBuilder.append("**You Rolled a ** " + roll + "\n");
         event.reply(resultBuilder.toString()).queue();
-      }
+        }//Rolling Dice Function ENDS *******************************************************
+    
+      } 
       
-
-    }
+      
+    
 
 
     //Guild Command --instantly updated (max of commands can only be up to 100 :( )

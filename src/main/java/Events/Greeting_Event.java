@@ -12,7 +12,7 @@ public class Greeting_Event extends ListenerAdapter {
 
     //Here in this class you will create two classes, one will greet a user when they join a server (GuildMemberJoinEvent)
     @Override
-    public void onGuildMemberJoin(GuildMemberJoinEvent event) {
+    public void onGuildMemberJoin(GuildMemberJoinEvent event) { //onGuildMemberjoin, onGuildMemberRemove, and onMessageReceived share polymorphic Principles 
         guildName = event.getGuild().getName();
         User_Name = event.getMember().getAsMention();
         Message = "Welcome, " + User_Name + " to the " + guildName + "! " + " Hopefully you enjoy your stay :)";
